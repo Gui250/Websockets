@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from repository.database import db
 from db_models.payment import Payment
+from payments.pix import Pix
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///payments.db'
@@ -16,13 +17,10 @@ def create_pix_payment():
    if 'value' not in data:
        return jsonify({"error": "Missing value"}), 400
 
-   if 'expiration_date' not in data:
-       return jsonify({"error": "Missing expiration_date"}), 400
+   payment = Payment(value=data['value'])
+   pix_obj = Pix()
+   data_payment_pix = pix_obj.create_payment()
 
-   payment = Payment(
-       value=data['value'],
-       expiration_date=data['expiration_date']
-   )
    db.session.add(payment)
    db.session.commit()
 
